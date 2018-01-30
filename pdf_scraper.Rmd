@@ -1,0 +1,50 @@
+---
+title: "Scraping PDF Files"
+author: "Paul Harmon"
+date: "January 29, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+install.packages('tm')
+
+library(tm)
+
+names <- c("MichaelaPowell","AndreaMack","PaulHarmon","JustinGomez","MosesObiri","DougAnderson","JakeJohnson","EricLoftsgaarden","MattPettigrew","ClaireRasmussen","SamRead","GarlandWill","WilsonWright","LaurenGoodwin","BobbyHsu","LeslieGG","DianaLiley","TaoHuang","MayaTsidulko","ChrisBarbour","LizMosher","AmberRobbins","AlyssaPeck","TanTran","MattTyers","CynthiaHollimon","TerrillPaterson","EricaSwanson","KatieBanner","BigDog","BrianMcGuire","PatchanokSrisuradetchai","JadeSchmidt","JamieThornton")
+
+advisors <-c( 'SC','AH','MG','MG','JB','MG','SC','JB','JB','MH','SC','MG','MH','SC','JB','MH','JB','UNK','SC','MG','SC','JB','JRC','MG','SC','KI','MH','JB','MH','MH','MG','JB','MG','SC')
+
+url_names <- c("2017/Powell17","2017/Mack17","2017/Harmon17","2017/Gomez17","2017/Obiri17","2016/16anderson","2016/16flagg","2016/16johnson","2016/16loftsgaarden","2016/16pettigrew","2016/16rasmussen","2016/16read","2016/16will","2016/16wright","2015/15goodwin","2015/15hsu","2015/15leslie_gg","2015/15liley","2015/15tao","2015/15tsidulko","2014/14barbour","2014/14mosher","2014/14nuxoll","2014/14apeck","2014/Tran14","2014/14tyers","2013/13hollimon","2013/13pattersn","2013/13eswanson","2012/12banner","2012/12lerch","2012/12mcguire","2012/12patchank","2012/12schmidt","2012/12thornton")
+
+URL_list <- paste('http://www.math.montana.edu/graduate/writing-projects/',url_names,'.pdf', sep = "")
+
+#downoads the pdf files
+library(XML)
+url <- 'http://www.math.montana.edu/graduate/writing-projects/2017/Powell17.pdf'
+download.file(url, 'MichaelaPowellWritingProject.pdf', mode="wb")
+
+mp <- pdf_text('MichaelaPowellWritingProject.pdf')
+
+
+#initialize for loop with a list right now
+projects <- rep(0,length(URL_list))
+for (j in 1:length(URL_list)){
+    projects[j] <- pdf_info(URL_list[j])$pages
+}
+
+
+#read pdf file
+files <- list.files(pattern = "pdf$")
+Rpdf <- readPDF(control = list(text = "-layout"))
+
+#Now time for some Plots
+
+
+
+```
+
