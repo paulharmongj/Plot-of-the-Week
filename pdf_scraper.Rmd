@@ -9,15 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Code to Scrape the PDFs from the Website: 
+It's actually pretty easy to do this. You just have to be careful because this package will slow R down. I had to write to a csv, then do all of my plots from there. 
 
 ```{r}
 install.packages('tm')
 
 library(tm)
 
-names <- c("MichaelaPowell","AndreaMack","PaulHarmon","JustinGomez","MosesObiri","DougAnderson","JakeJohnson","EricLoftsgaarden","MattPettigrew","ClaireRasmussen","SamRead","GarlandWill","WilsonWright","LaurenGoodwin","BobbyHsu","LeslieGG","DianaLiley","TaoHuang","MayaTsidulko","ChrisBarbour","LizMosher","AmberRobbins","AlyssaPeck","TanTran","MattTyers","CynthiaHollimon","TerrillPaterson","EricaSwanson","KatieBanner","BigDog","BrianMcGuire","PatchanokSrisuradetchai","JadeSchmidt","JamieThornton")
+names <- c("MichaelaPowell","AndreaMack","PaulHarmon","JustinGomez","MosesObiri","DougAnderson",'KennyFlagg',"JakeJohnson","EricLoftsgaarden","MattPettigrew","ClaireRasmussen","SamRead","GarlandWill","WilsonWright","LaurenGoodwin","BobbyHsu","LeslieGG","DianaLiley","TaoHuang","MayaTsidulko","ChrisBarbour","LizMosher","AmberRobbins","AlyssaPeck","TanTran","MattTyers","CynthiaHollimon","TerrillPaterson","EricaSwanson","KatieBanner","BigDog","BrianMcGuire","PatchanokSrisuradetchai","JadeSchmidt","JamieThornton")
 
-advisors <-c( 'SC','AH','MG','MG','JB','MG','SC','JB','JB','MH','SC','MG','MH','SC','JB','MH','JB','UNK','SC','MG','SC','JB','JRC','MG','SC','KI','MH','JB','MH','MH','MG','JB','MG','SC')
+advisors <-c( 'SC','AH','MG','MG','JB','MG','MH','SC','JB','JB','MH','SC','MG','MH','SC','JB','MH','JB','UNK','SC','MG','SC','JB','JRC','MG','SC','KI','MH','JB','MH','MH','MG','JB','MG','SC')
 
 url_names <- c("2017/Powell17","2017/Mack17","2017/Harmon17","2017/Gomez17","2017/Obiri17","2016/16anderson","2016/16flagg","2016/16johnson","2016/16loftsgaarden","2016/16pettigrew","2016/16rasmussen","2016/16read","2016/16will","2016/16wright","2015/15goodwin","2015/15hsu","2015/15leslie_gg","2015/15liley","2015/15tao","2015/15tsidulko","2014/14barbour","2014/14mosher","2014/14nuxoll","2014/14apeck","2014/Tran14","2014/14tyers","2013/13hollimon","2013/13pattersn","2013/13eswanson","2012/12banner","2012/12lerch","2012/12mcguire","2012/12patchank","2012/12schmidt","2012/12thornton")
 
@@ -44,7 +46,24 @@ Rpdf <- readPDF(control = list(text = "-layout"))
 
 #Now time for some Plots
 
+#reads in the csv I wrote earlier
+pages <- read.csv('projec_pages.csv')
 
+swaggy.df <- data.frame(cbind(names,advisors,pages))
+library(dplyr)
+new.df <- filter(swaggy.df, advisors != 'UNK')
+names(new.df) <- c('Student','Advisor','order','PageCount')
+new.df$Advisor <- factor(new.df$Advisor, levels = c("AH",'JB','JRC','KI','MG','MH','SC'), labels = c("Hoegh","Borkowski",'JRC',"Irvine","Greenwood",'Higgs','Cherry'))
+
+#produces the plot
+library(grDevices)
+MSU_blue <- rgb(0,32,91,maxColorValue = 255, alpha = 200)
+beanplot(PageCount~Advisor,data = new.df, col = c(MSU_blue,'gold2','gray50'),kernel = 'rectangular',
+         cut = TRUE, las = 1, ll= 0.6)
+title("Plot of the Week: MS Writing Project Page Lengths ")
+
+#Wait till next week for another fun plot....and if you don't want to write a ton, go with Borkowski or Hoegh 
+#as your advisor! 
 
 ```
 
