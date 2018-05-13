@@ -36,7 +36,7 @@ mp <- pdf_text('MichaelaPowellWritingProject.pdf')
 #initialize for loop with a list right now
 projects <- rep(0,length(URL_list))
 for (j in 1:length(URL_list)){
-    projects[j] <- pdf_info(URL_list[j])$pages
+    projects[j] <- pdf_info(URL_list[j])$pages;
 }
 
 
