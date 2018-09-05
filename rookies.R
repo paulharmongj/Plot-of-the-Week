@@ -76,12 +76,56 @@ rook03 <- read_csv("data/03_04Rookies.csv")
 rook04 <- read_csv('data/04_05Rookies.csv')
 rook05 <- read_csv('data/05_06Rookies.csv')
 rook06 <- read_csv('data/06_07Rookies.csv')
+rook07 <- read_csv('data/07_08Rookies.csv')
+rook08 <- read_csv('data/08_09Rookies.csv')
+rook09 <- read_csv('data/09_10Rookies.csv')
+rook10 <- read_csv('data/10_11Rookies.csv')
+rook11 <- read_csv('data/11_12Rookies.csv')
+rook12 <- read_csv('data/12_13Rookies.csv')
+rook13 <- read_csv('data/13_14Rookies.csv')
+rook14 <- read_csv('data/14_15Rookies.csv')
+rook15 <- read_csv('data/15_16_Rookies.csv')
+rook16 <- read_csv('data/16_17Rookies.csv')
+rook17 <- read_csv('data/17_18Rookies.csv')
 
-nba_list1 <- list(rook03, rook04, rook05, rook06)
+#paste("rook",seq(07,17, by = 1),sep = "")
+
+nba_list1 <- list(rook03, rook04, rook05, rook06,rook07, rook08, rook09,rook10, rook11,rook12,rook13,rook14,rook15,rook16,rook17)
 
 remove_losers <- function(data){
   data <- dplyr::filter(data, g > 29) 
 }
+
+count_losers <- function(data){
+  data_new <- dplyr:: filter(data,g>29)
+  count <- nrow(data) - nrow(data_new)
+  prop <- count/nrow(data)
+  return(prop)}
+
+##plot of injured player proportions
+inj.prop <- lapply(nba_list1, count_losers)
+library(ggplot2); library(ggthemes)
+ggplot() + geom_line(aes(x = 1:15, y = unlist(inj.prop)),size = 1.5) + stat_smooth(aes(x = 1:15, y = unlist(inj.prop)), color = "red", method = 'loess', fill = NA) + 
+  theme_classic() + ggtitle("Proportion of rookies that played fewer than 30 games") + xlab("Year") + ylab("Percent Variation Explained") + 
+  scale_x_continuous(breaks = c(1:16), labels = seq(2003,2018,by = 1))
+
+return_stuff <- function(data){
+  missed <- ifelse(data$g < 31, 1, 0) #returns 1 if they are injured/miss time
+return(missed)}
+missed <- unlist(lapply(nba_list1, return_stuff))
+nrows.vec <- unlist(lapply(nba_list1, nrow))
+year <- rep(c(2003:2017), times = c(nrows.vec))
+
+#builds a dataset
+df.year <- tibble(factor(year), missed)
+
+library(viridis)
+ggplot(df.year) + geom_bar(aes(year, fill = factor(missed))) + ggtitle("Proportion of Rookies by Playing Time") +
+  theme_bw() + ylab("Count of Rookies") + xlab("Year") + scale_x_discrete(breaks =c(1:16),labels = seq(2003,2018,by = 1)) +
+  scale_fill_viridis(name = "Playing Time", label = c(">= 30 games","< 30 games"),option = "viridis",discrete = TRUE)
+
+#############
+
 
 nba_list <- lapply(nba_list1, remove_losers)
 
@@ -109,6 +153,7 @@ get_scores <- function(pca_obj){
 
 pca_scores_list <- lapply(pca_list, get_scores)
 #automate clustering
+library(mclust)
 nba_clust <- function(Scores){
   clusters <- mclustBIC(Scores)
   mod1 <- Mclust(Scores, x = clusters)
@@ -120,6 +165,7 @@ class_list <- lapply(pca_scores_list, nba_clust)
 par(mfrow = c(1,1))
 
 #generates plots of all each of the years (with BIC-optimized clusters)
+
 par(mfrow = c(1,1))
 for (j in 1:length(class_list)){
   plot(pca_scores_list[[j]][,1], pca_scores_list[[j]][,2], col = class_list[[j]]$classification, pch = 20, main = paste("PCA of NBA Rookies",j + 2002), xlab = "First Component", ylab = "Second Component", type = "n", xlim =c(-10,10))
@@ -143,5 +189,20 @@ pca_sort <- function(pca_list){
 lapply(pca_scores_list,pca_sort)
 
 
+
+#some code for the exploratory analysis
+#plot of pct over time
+##function to get the variation explained
+
+get_Var <- function(pca_object){
+  summary(pca_object)$importance['Cumulative Proportion',3]
+  }
+
+#variance explained
+var_exp <- lapply(pca_list, get_Var)
+library(ggplot2); library(ggthemes)
+ggplot() + geom_line(aes(x = 1:15, y = unlist(var_exp))) + stat_smooth(aes(x = 1:15, y = unlist(var_exp)), color = "red", method = 'loess', fill = NA) + 
+  theme_bw() + ggtitle("Variation Explained by the First Two PCs") + xlab("Year") + ylab("Percent Variation Explained") + 
+  scale_x_continuous(breaks = c(1:16), labels = seq(2003,2018,by = 1))
 
 
